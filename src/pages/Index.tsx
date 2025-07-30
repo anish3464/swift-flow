@@ -1,68 +1,71 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProjectCard } from "@/components/project-card";
 import { CreateProjectModal } from "@/components/create-project-modal";
 import { RecentActivity } from "@/components/recent-activity";
-
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  dueDate: string;
-  progress: number;
-  taskCount: number;
-  completedTasks: number;
-  status: "active" | "completed" | "overdue";
-}
-
-const mockProjects: Project[] = [
-  {
-    id: "1",
-    title: "Website Redesign",
-    description: "Complete overhaul of the company website with modern design and improved user experience",
-    dueDate: "2024-08-15",
-    progress: 65,
-    taskCount: 12,
-    completedTasks: 8,
-    status: "active"
-  },
-  {
-    id: "2",
-    title: "Mobile App Development",
-    description: "Native mobile application for iOS and Android platforms",
-    dueDate: "2024-09-30",
-    progress: 30,
-    taskCount: 15,
-    completedTasks: 4,
-    status: "active"
-  },
-  {
-    id: "3",
-    title: "Database Migration",
-    description: "Migrate legacy database to new cloud infrastructure",
-    dueDate: "2024-07-20",
-    progress: 100,
-    taskCount: 8,
-    completedTasks: 8,
-    status: "completed"
-  }
-];
+import { useAuth } from "@/contexts/AuthContext";
+import { projectService, Project } from "@/lib/projects";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
-  const [projects, setProjects] = useState<Project[]>(mockProjects);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  const handleCreateProject = (projectData: { title: string; description: string; dueDate: string }) => {
-    const newProject: Project = {
-      id: Date.now().toString(),
-      title: projectData.title,
-      description: projectData.description,
-      dueDate: projectData.dueDate,
-      progress: 0,
-      taskCount: 0,
-      completedTasks: 0,
-      status: "active"
-    };
-    setProjects([...projects, newProject]);
+  useEffect(() => {
+    loadProjects();
+  }, []);
+
+  const loadProjects = async () => {
+    try {
+      const data = await projectService.getProjects();
+      setProjects(data);
+    } catch (error) {
+      console.error('Failed to load projects:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load projects",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleCreateProject = async (projectData: { title: string; description: string; dueDate: string }) => {
+    try {
+      const newProject = await projectService.createProject({
+        title: projectData.title,
+        description: projectData.description,
+        due_date: projectData.dueDate,
+        status: 'active',
+        priority: 'medium',
+      });
+      setProjects([newProject, ...projects]);
+      toast({
+        title: "Success",
+        description: "Project created successfully",
+      });
+    } catch (error) {
+      console.error('Failed to create project:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create project",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p>Loading projects...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -70,7 +73,7 @@ const Index = () => {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
-            Welcome to your project management dashboard
+            Welcome back, {user?.first_name || user?.username}! Manage your projects and tasks.
           </p>
         </div>
         <CreateProjectModal onCreateProject={handleCreateProject} />
