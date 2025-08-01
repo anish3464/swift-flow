@@ -11,6 +11,7 @@ import Tasks from "./pages/Tasks";
 import Calendar from "./pages/Calendar";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
@@ -86,6 +87,13 @@ const AppRoutes = () => (
       <ProtectedRoute>
         <Layout>
           <Settings />
+        </Layout>
+      </ProtectedRoute>
+    } />
+    <Route path="/admin" element={
+      <ProtectedRoute>
+        <Layout>
+          <Admin />
         </Layout>
       </ProtectedRoute>
     } />

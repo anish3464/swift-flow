@@ -139,8 +139,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
         if (self.request.user.role != 'admin' or 
             instance == self.request.user):
             raise permissions.PermissionDenied("You don't have permission to delete this user")
-        instance.is_active = False
-        instance.save()
+        instance.delete()
 
 class CompanyDetailView(generics.RetrieveUpdateAPIView):
     """Get and update company details"""

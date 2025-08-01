@@ -1,5 +1,6 @@
-import { LayoutDashboard, CheckSquare, Calendar, BarChart3, Settings } from "lucide-react"
+import { LayoutDashboard, CheckSquare, Calendar, BarChart3, Settings, Shield } from "lucide-react"
 import { NavLink, useLocation } from "react-router-dom"
+import { useAuth } from "@/contexts/AuthContext"
 
 import {
   Sidebar,
@@ -21,8 +22,12 @@ const items = [
   { title: "Settings", url: "/settings", icon: Settings },
 ]
 
+const adminItems = [
+  { title: "Admin Panel", url: "/admin", icon: Shield },
+]
 export function AppSidebar() {
   const { state } = useSidebar()
+  const { user } = useAuth()
   const location = useLocation()
   const currentPath = location.pathname
   const collapsed = state === "collapsed"
@@ -31,6 +36,7 @@ export function AppSidebar() {
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "hover:bg-sidebar-accent/50"
 
+  const allItems = user?.role === 'admin' ? [...items, ...adminItems] : items
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
@@ -44,7 +50,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {allItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end className={getNavCls}>
