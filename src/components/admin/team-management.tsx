@@ -63,7 +63,9 @@ export function TeamManagement({ teams, users, onTeamsChange }: TeamManagementPr
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.response?.data?.detail || "Failed to create team",
+        description: error.response?.data?.detail || 
+                    Object.values(error.response?.data || {}).flat().join(', ') ||
+                    "Failed to create team",
         variant: "destructive",
       });
     } finally {
@@ -204,6 +206,70 @@ export function TeamManagement({ teams, users, onTeamsChange }: TeamManagementPr
                   </Select>
                 </div>
 
+                <div className="space-y-2">
+                  <Label>Team Members</Label>
+                  <div className="border rounded-md p-3 max-h-40 overflow-y-auto">
+                    {users.filter(u => u.is_active).map((user) => (
+                      <div key={user.id} className="flex items-center space-x-2 py-1">
+                        <input
+                          type="checkbox"
+                          id={`edit-member-${user.id}`}
+                          checked={editForm.member_ids?.includes(user.id) || false}
+                          onChange={(e) => {
+                            const memberIds = editForm.member_ids || [];
+                            if (e.target.checked) {
+                              setEditForm({ 
+                                ...editForm, 
+                                member_ids: [...memberIds, user.id] 
+                              });
+                            } else {
+                              setEditForm({ 
+                                ...editForm, 
+                                member_ids: memberIds.filter(id => id !== user.id) 
+                              });
+                            }
+                          }}
+                          className="rounded"
+                        />
+                        <label htmlFor={`edit-member-${user.id}`} className="text-sm cursor-pointer">
+                          {user.full_name || user.username} ({user.role})
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Team Members</Label>
+                  <div className="border rounded-md p-3 max-h-40 overflow-y-auto">
+                    {users.filter(u => u.is_active).map((user) => (
+                      <div key={user.id} className="flex items-center space-x-2 py-1">
+                        <input
+                          type="checkbox"
+                          id={`member-${user.id}`}
+                          checked={createForm.member_ids?.includes(user.id) || false}
+                          onChange={(e) => {
+                            const memberIds = createForm.member_ids || [];
+                            if (e.target.checked) {
+                              setCreateForm({ 
+                                ...createForm, 
+                                member_ids: [...memberIds, user.id] 
+                              });
+                            } else {
+                              setCreateForm({ 
+                                ...createForm, 
+                                member_ids: memberIds.filter(id => id !== user.id) 
+                              });
+                            }
+                          }}
+                          className="rounded"
+                        />
+                        <label htmlFor={`member-${user.id}`} className="text-sm cursor-pointer">
+                          {user.full_name || user.username} ({user.role})
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
                 <div className="flex justify-end gap-3">
                   <Button type="button" variant="outline" onClick={() => setCreateDialogOpen(false)}>
                     Cancel

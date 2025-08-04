@@ -78,7 +78,9 @@ export function UserManagement({ users, onUsersChange }: UserManagementProps) {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.response?.data?.detail || "Failed to create user",
+        description: error.response?.data?.detail || 
+                    Object.values(error.response?.data || {}).flat().join(', ') ||
+                    "Failed to create user",
         variant: "destructive",
       });
     } finally {

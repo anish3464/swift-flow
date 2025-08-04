@@ -52,15 +52,33 @@ class UserCreateSerializer(serializers.ModelSerializer):
             'last_name', 'company', 'role', 'phone', 'position', 'department', 
             'hire_date', 'is_company_owner'
         ]
+        extra_kwargs = {
+            'company': {'required': False}
+        }
     
     def validate(self, attrs):
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError("Passwords don't match")
         return attrs
     
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Username already exists")
+        return value
+    
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Email already exists")
+        return value
+    
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         password = validated_data.pop('password')
+        
+        # Set company from request user if not provided
+        if 'company' not in validated_data or not validated_data['company']:
+            validated_data['company'] = self.context['request'].user.company
+            
         user = User.objects.create_user(password=password, **validated_data)
         return user
 
