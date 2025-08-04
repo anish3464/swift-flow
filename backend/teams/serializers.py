@@ -47,6 +47,13 @@ class TeamCreateSerializer(serializers.ModelSerializer):
             'name', 'description', 'lead', 'member_ids'
         ]
     
+    def validate_lead(self, value):
+        if value:
+            user = self.context['request'].user
+            if value.company != user.company:
+                raise serializers.ValidationError("Team lead must belong to the same company")
+        return value
+    
     def create(self, validated_data):
         member_ids = validated_data.pop('member_ids', [])
         user = self.context['request'].user
@@ -56,11 +63,16 @@ class TeamCreateSerializer(serializers.ModelSerializer):
         
         # Add members
         for member_id in member_ids:
-            TeamMembership.objects.create(
-                team=team,
-                user_id=member_id,
-                role='member'
-            )
+            try:
+                from accounts.models import User
+                member_user = User.objects.get(id=member_id, company=user.company)
+                TeamMembership.objects.create(
+                    team=team,
+                    user=member_user,
+                    role='member'
+                )
+            except User.DoesNotExist:
+                continue
         
         # Add lead as member if not already in the list
         if team.lead and team.lead.id not in member_ids:

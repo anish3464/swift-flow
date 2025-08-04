@@ -117,7 +117,7 @@ class CompanyUsersListView(generics.ListCreateAPIView):
         if self.request.user.role not in ['admin', 'manager']:
             raise permissions.PermissionDenied("You don't have permission to create users")
         
-        serializer.save(company=self.request.user.company)
+        serializer.save()
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Retrieve, update, or delete a specific user"""
