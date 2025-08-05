@@ -44,6 +44,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating new users"""
     password = serializers.CharField(write_only=True, validators=[validate_password])
     password_confirm = serializers.CharField(write_only=True)
+    hire_date = serializers.DateField(required=False, allow_null=True)
     
     class Meta:
         model = User
@@ -71,9 +72,19 @@ class UserCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Email already exists")
         return value
     
+    def validate_hire_date(self, value):
+        # Allow empty string or None for hire_date
+        if value == '' or value is None:
+            return None
+        return value
+    
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         password = validated_data.pop('password')
+        
+        # Handle empty hire_date
+        if validated_data.get('hire_date') == '' or validated_data.get('hire_date') is None:
+            validated_data.pop('hire_date', None)
         
         # Set company from request user if not provided
         if 'company' not in validated_data or not validated_data['company']:

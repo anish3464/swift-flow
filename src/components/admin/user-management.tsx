@@ -37,7 +37,7 @@ export function UserManagement({ users, onUsersChange }: UserManagementProps) {
     phone: '',
     position: '',
     department: '',
-    hire_date: '',
+    hire_date: null,
   });
 
   const [editForm, setEditForm] = useState<UserUpdateData>({});
@@ -72,7 +72,7 @@ export function UserManagement({ users, onUsersChange }: UserManagementProps) {
         phone: '',
         position: '',
         department: '',
-        hire_date: '',
+        hire_date: null,
       });
       onUsersChange();
     } catch (error: any) {
@@ -173,7 +173,7 @@ export function UserManagement({ users, onUsersChange }: UserManagementProps) {
       phone: user.phone || '',
       position: user.position || '',
       department: user.department || '',
-      hire_date: user.hire_date || '',
+      hire_date: user.hire_date || null,
     });
     setEditDialogOpen(true);
   };
@@ -331,6 +331,16 @@ export function UserManagement({ users, onUsersChange }: UserManagementProps) {
                       onChange={(e) => setCreateForm({ ...createForm, department: e.target.value })}
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="hire_date">Hire Date (Optional)</Label>
+                  <Input
+                    id="hire_date"
+                    type="date"
+                    value={createForm.hire_date || ''}
+                    onChange={(e) => setCreateForm({ ...createForm, hire_date: e.target.value })}
+                  />
                 </div>
 
                 <div className="flex justify-end gap-3">
@@ -528,6 +538,16 @@ export function UserManagement({ users, onUsersChange }: UserManagementProps) {
                     onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit_hire_date">Hire Date</Label>
+                <Input
+                  id="edit_hire_date"
+                  type="date"
+                  value={editForm.hire_date || ''}
+                  onChange={(e) => setEditForm({ ...editForm, hire_date: e.target.value || null })}
+                />
               </div>
 
               <div className="flex justify-end gap-3">

@@ -12,7 +12,7 @@ export interface UserCreateData {
   phone?: string;
   position?: string;
   department?: string;
-  hire_date?: string;
+  hire_date?: string | null;
 }
 
 export interface UserUpdateData {
@@ -24,7 +24,7 @@ export interface UserUpdateData {
   phone?: string;
   position?: string;
   department?: string;
-  hire_date?: string;
+  hire_date?: string | null;
   is_active?: boolean;
 }
 
